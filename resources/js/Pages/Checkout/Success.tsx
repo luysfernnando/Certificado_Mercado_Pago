@@ -11,9 +11,10 @@ interface Order {
 
 interface Props {
   order?: Order
+  payment_id?: string
 }
 
-export default function Success({ order }: Props) {
+export default function Success({ order, payment_id }: Props) {
   return (
     <Layout title="Pagamento Aprovado">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -34,6 +35,9 @@ export default function Success({ order }: Props) {
               <p><strong>Pedido:</strong> {order.external_id}</p>
               <p><strong>Cliente:</strong> {order.customer_name}</p>
               <p><strong>Valor:</strong> R$ {typeof order.total_amount === 'string' ? parseFloat(order.total_amount).toFixed(2) : order.total_amount.toFixed(2)}</p>
+              {payment_id && (
+                <p><strong>Payment ID:</strong> <span className="font-mono text-sm bg-yellow-100 px-2 py-1 rounded">{payment_id}</span></p>
+              )}
             </div>
           )}
 

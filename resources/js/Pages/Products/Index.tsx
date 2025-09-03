@@ -60,33 +60,155 @@ export default function Index({ products }: Props) {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {products.map((product) => (
-            <div key={product.id} className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col h-full">
-              <img
-                src={product.image || 'https://picsum.photos/300/300?random=999'}
-                alt={product.name}
-                className="w-full h-48 object-cover"
-              />
+          {/* Card de Anúncio 1 */}
+          <div className="bg-gradient-to-br from-orange-50 to-orange-100 border-2 border-dashed border-orange-300 rounded-lg shadow-lg hover:shadow-xl overflow-hidden flex flex-col h-full transition-shadow duration-300">
+            <div className="relative overflow-hidden bg-gradient-to-br from-orange-200 to-orange-300">
+              <div className="w-full h-48 flex items-center justify-center">
+                <div className="text-center">
+                  <div className="text-6xl mb-2">📢</div>
+                  <div className="text-orange-700 font-bold text-lg">SEU ANÚNCIO AQUI</div>
+                </div>
+              </div>
+            </div>
+            <div className="p-4 flex flex-col flex-grow">
+              <h3 className="text-lg font-semibold text-orange-900 mb-2 line-clamp-2">
+                Espaço para Anúncio
+              </h3>
+              <p className="text-orange-700 text-sm mb-3 flex-grow line-clamp-3">
+                Faça hoje sua divulgação e alcance milhares de clientes potenciais! Anuncie seus produtos e serviços em nossa plataforma.
+              </p>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-xl font-bold text-orange-600">
+                  A partir de R$ 99,90
+                </span>
+                <span className="text-sm text-orange-600 bg-orange-200 px-2 py-1 rounded">
+                  Disponível
+                </span>
+              </div>
+              <button
+                onClick={() => window.open('mailto:contato@exemplo.com?subject=Interesse em Anunciar', '_blank')}
+                className="w-full py-2 px-4 rounded-md transition-colors mt-auto font-medium bg-orange-500 text-white hover:bg-orange-600 active:bg-orange-700"
+              >
+                Anuncie Aqui
+              </button>
+            </div>
+          </div>
+
+          {products.slice(0, 3).map((product) => (
+            <div key={product.id} className="bg-white rounded-lg shadow-lg hover:shadow-xl overflow-hidden flex flex-col h-full transition-shadow duration-300">
+              <div className="relative overflow-hidden">
+                <img
+                  src={product.image || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop&crop=center'}
+                  alt={product.name}
+                  className="w-full h-48 object-cover hover:scale-105 transition-transform duration-300"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop&crop=center';
+                  }}
+                />
+              </div>
               <div className="p-4 flex flex-col flex-grow">
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
                   {product.name}
                 </h3>
-                <p className="text-gray-600 text-sm mb-3 flex-grow">
+                <p className="text-gray-600 text-sm mb-3 flex-grow line-clamp-3">
                   {product.description}
                 </p>
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-2xl font-bold text-green-600">
                     R$ {formatPrice(product.price)}
                   </span>
-                  <span className="text-sm text-gray-500">
+                  <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">
                     Estoque: {product.stock}
                   </span>
                 </div>
                 <button
                   onClick={() => handleBuyNow(product)}
-                  className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors mt-auto"
+                  disabled={product.stock === 0}
+                  className={`w-full py-2 px-4 rounded-md transition-colors mt-auto font-medium ${
+                    product.stock === 0
+                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                      : 'bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800'
+                  }`}
                 >
-                  Comprar Agora
+                  {product.stock === 0 ? 'Esgotado' : 'Comprar Agora'}
+                </button>
+              </div>
+            </div>
+          ))}
+
+          {/* Card de Anúncio 2 */}
+          <div className="bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-dashed border-purple-300 rounded-lg shadow-lg hover:shadow-xl overflow-hidden flex flex-col h-full transition-shadow duration-300">
+            <div className="relative overflow-hidden bg-gradient-to-br from-purple-200 to-purple-300">
+              <div className="w-full h-48 flex items-center justify-center">
+                <div className="text-center">
+                  <div className="text-6xl mb-2">🎯</div>
+                  <div className="text-purple-700 font-bold text-lg">DESTAQUE SEU NEGÓCIO</div>
+                </div>
+              </div>
+            </div>
+            <div className="p-4 flex flex-col flex-grow">
+              <h3 className="text-lg font-semibold text-purple-900 mb-2 line-clamp-2">
+                Espaço para Anúncio
+              </h3>
+              <p className="text-purple-700 text-sm mb-3 flex-grow line-clamp-3">
+                Aumente suas vendas com nossa audiência qualificada! Pacotes promocionais disponíveis para impulsionar seu negócio.
+              </p>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-xl font-bold text-purple-600">
+                  Planos especiais
+                </span>
+                <span className="text-sm text-purple-600 bg-purple-200 px-2 py-1 rounded">
+                  Oferta limitada
+                </span>
+              </div>
+              <button
+                onClick={() => window.open('mailto:contato@exemplo.com?subject=Interesse em Planos de Anúncio', '_blank')}
+                className="w-full py-2 px-4 rounded-md transition-colors mt-auto font-medium bg-purple-500 text-white hover:bg-purple-600 active:bg-purple-700"
+              >
+                Anuncie Aqui
+              </button>
+            </div>
+          </div>
+
+          {products.slice(3).map((product) => (
+            <div key={product.id} className="bg-white rounded-lg shadow-lg hover:shadow-xl overflow-hidden flex flex-col h-full transition-shadow duration-300">
+              <div className="relative overflow-hidden">
+                <img
+                  src={product.image || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop&crop=center'}
+                  alt={product.name}
+                  className="w-full h-48 object-cover hover:scale-105 transition-transform duration-300"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop&crop=center';
+                  }}
+                />
+              </div>
+              <div className="p-4 flex flex-col flex-grow">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
+                  {product.name}
+                </h3>
+                <p className="text-gray-600 text-sm mb-3 flex-grow line-clamp-3">
+                  {product.description}
+                </p>
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-2xl font-bold text-green-600">
+                    R$ {formatPrice(product.price)}
+                  </span>
+                  <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                    Estoque: {product.stock}
+                  </span>
+                </div>
+                <button
+                  onClick={() => handleBuyNow(product)}
+                  disabled={product.stock === 0}
+                  className={`w-full py-2 px-4 rounded-md transition-colors mt-auto font-medium ${
+                    product.stock === 0
+                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                      : 'bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800'
+                  }`}
+                >
+                  {product.stock === 0 ? 'Esgotado' : 'Comprar Agora'}
                 </button>
               </div>
             </div>

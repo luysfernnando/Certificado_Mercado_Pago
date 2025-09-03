@@ -69,15 +69,26 @@ class CheckoutController extends Controller
 
             // Configure MP client
             $accessToken = config('services.mercadopago.access_token');
-            \Log::info('Access token loaded', ['token_prefix' => substr($accessToken, 0, 10) . '...']);
+            $integratorId = config('services.mercadopago.integrator_id');
+
+            \Log::info('MP Configuration', [
+                'token_prefix' => substr($accessToken, 0, 10) . '...',
+                'integrator_id' => $integratorId
+            ]);
 
             MercadoPagoConfig::setAccessToken($accessToken);
+            if ($integratorId) {
+                MercadoPagoConfig::setIntegratorId($integratorId);
+            }
             $client = new PreferenceClient();
 
             $preferenceData = [
                 "items" => [
                     [
+                        "id" => (string) $product->id, // ID do produto
                         "title" => $product->name,
+                        "description" => $product->description, // Descrição do produto
+                        "picture_url" => $product->image, // URL da imagem
                         "quantity" => $request->quantity,
                         "unit_price" => floatval($product->price),
                         "currency_id" => "BRL"
@@ -88,13 +99,20 @@ class CheckoutController extends Controller
                     "email" => $request->customer_email
                 ],
                 "external_reference" => $order->external_id,
+                "payment_methods" => [
+                    "excluded_payment_methods" => [
+                        ["id" => "account_money"] // Excluir saldo em conta como pedido no exame
+                    ],
+                    "excluded_payment_types" => [],
+                    "installments" => 12 // Máximo de 12 parcelas
+                ],
                 "back_urls" => [
                     "success" => url('/checkout/success'),
                     "failure" => url('/checkout/failure'),
                     "pending" => url('/checkout/pending')
-                ]
+                ],
+                "notification_url" => url('/checkout/webhook') // Reativar webhook para notificações
                 // "auto_return" => "approved" // Comentado para evitar validação rigorosa do MP
-                // "notification_url" => route('checkout.webhook') // Comentado temporariamente
             ];
 
             \Log::info('Preference data prepared', $preferenceData);
@@ -141,11 +159,17 @@ class CheckoutController extends Controller
         ]);
 
         $collection_id = $request->get('collection_id');
+        $payment_id = $request->get('payment_id'); // Payment ID também pode vir aqui
         $external_reference = $request->get('external_reference');
+        $collection_status = $request->get('collection_status');
+        $payment_type = $request->get('payment_type');
 
         \Log::info('Processing success', [
             'collection_id' => $collection_id,
-            'external_reference' => $external_reference
+            'payment_id' => $payment_id,
+            'external_reference' => $external_reference,
+            'collection_status' => $collection_status,
+            'payment_type' => $payment_type
         ]);
 
         $order = null;
@@ -154,14 +178,20 @@ class CheckoutController extends Controller
             if ($order) {
                 $order->update([
                     'status' => 'paid',
-                    'mercado_pago_payment_id' => $collection_id
+                    'mercado_pago_payment_id' => $payment_id ?: $collection_id,
+                    'payment_status' => $collection_status,
+                    'payment_type' => $payment_type
                 ]);
-                \Log::info('Order updated to paid', ['order_id' => $order->id]);
+                \Log::info('Order updated to paid', [
+                    'order_id' => $order->id,
+                    'payment_id' => $payment_id ?: $collection_id
+                ]);
             }
         }
 
         return Inertia::render('Checkout/Success', [
-            'order' => $order
+            'order' => $order,
+            'payment_id' => $payment_id ?: $collection_id // Passar payment_id para o frontend
         ]);
     }
 
@@ -177,18 +207,29 @@ class CheckoutController extends Controller
 
     public function webhook(Request $request)
     {
-        // Webhook para receber notificações do Mercado Pago
+        \Log::info('Mercado Pago Webhook received', [
+            'headers' => $request->headers->all(),
+            'body' => $request->all(),
+            'raw_body' => $request->getContent()
+        ]);
+
         $data = $request->all();
 
-        if (isset($data['data']['id'])) {
-            $payment_id = $data['data']['id'];
+        // Processar notificação de pagamento
+        if (isset($data['type']) && $data['type'] === 'payment') {
+            $payment_id = $data['data']['id'] ?? null;
 
-            // Aqui você pode implementar a lógica para consultar o pagamento
-            // e atualizar o status do pedido
+            if ($payment_id) {
+                \Log::info('Payment notification received', [
+                    'payment_id' => $payment_id,
+                    'action' => $data['action'] ?? null
+                ]);
 
-            \Log::info('Mercado Pago Webhook:', $data);
+                // Aqui você pode implementar consulta à API do MP para obter detalhes do pagamento
+                // e atualizar o status do pedido baseado no external_reference
+            }
         }
 
-        return response()->json(['status' => 'ok']);
+        return response()->json(['status' => 'ok'], 200);
     }
 }
