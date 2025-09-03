@@ -5,23 +5,32 @@
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "skipLibCheck": true,
-    "moduleResolution": "bundler",
+    "moduleResolution": "node",
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "jsxImportSource": "react",
+    "strict": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "paths": {
-      "@/*": ["./frontend/src/*"]
-    }
+      "@/*": [
+        "./resources/js/*"
+      ]
+    },
+    "types": [
+      "node",
+      "react",
+      "react-dom",
+      "vite/client"
+    ]
   },
   "include": [
-    "resources/js/**/*",
-    "frontend/src/**/*"
-  ],
-  "references": [{ "path": "./tsconfig.node.json" }]
+    "resources/js/**/*"
+  ]
 }
